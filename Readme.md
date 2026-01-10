@@ -10,11 +10,11 @@ Desarrollado por **FedeiaTech** utilizando **JavaFX 21** con integración nativa
 ## 📸 Capturas de Pantalla
 
 ### 1. Interfaz Principal (Estado Inicial)
-![Interfaz Principal](assets/screenshot_empty.png)
+![Interfaz Principal](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/01.png)
 *Interfaz limpia esperando la carga de archivos mediante Drag & Drop.*
 
 ### 2. Editor en Acción (Chroma Key + Recorte)
-![Editando Video](assets/screenshot_editing.png)
+![Editando Video](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/02.png)
 *Vista previa en tiempo real con eliminación de fondo, grilla automática y visor con zoom.*
 
 *(Nota: Las imágenes deben estar en la carpeta `assets` del repositorio).*
