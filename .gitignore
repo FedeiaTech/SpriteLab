@@ -10,6 +10,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.properties
 
+# --- build ---
+_instal_build/
+
 # --- IDE: NetBeans ---
 nbproject/private/
 nbbuild/

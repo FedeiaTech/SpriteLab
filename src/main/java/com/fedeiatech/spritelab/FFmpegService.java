@@ -10,13 +10,37 @@ import java.util.regex.Pattern;
 
 public class FFmpegService {
 
+    /**
+     * Método CORREGIDO: Busca el ejecutable de forma absoluta.
+     * Encuentra la carpeta donde está el .jar corriendo y le añade /bin/ffmpeg.exe
+     */
     private File getFFmpegExecutable() {
-        String[] possiblePaths = { "./bin/ffmpeg.exe", "bin/ffmpeg.exe", "../bin/ffmpeg.exe", "ffmpeg.exe" };
-        for (String path : possiblePaths) {
-            File f = new File(path);
-            if (f.exists()) return f;
+        try {
+            // 1. Obtenemos la ruta absoluta de donde está el archivo JAR (o la clase compilada)
+            String jarPath = new File(FFmpegService.class.getProtectionDomain()
+                                        .getCodeSource()
+                                        .getLocation()
+                                        .toURI()).getParent();
+            
+            // 2. Construimos la ruta hacia bin/ffmpeg.exe
+            File executable = new File(jarPath, "bin/ffmpeg.exe");
+
+            // 3. Verificamos si existe en la ruta absoluta (Producción / Instalador)
+            if (executable.exists()) {
+                return executable;
+            } else {
+                // 4. Fallback: Si no existe (ej. probando en NetBeans sin build), probamos ruta relativa
+                File relative = new File("bin/ffmpeg.exe");
+                if (relative.exists()) return relative;
+                
+                // 5. Último intento: quizás está en una carpeta arriba (entorno desarrollo)
+                return new File("../bin/ffmpeg.exe");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Si todo falla, retornamos el default relativo
+            return new File("bin/ffmpeg.exe"); 
         }
-        return new File("bin/ffmpeg.exe"); 
     }
 
     public static class VideoMeta {
@@ -42,6 +66,9 @@ public class FFmpegService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                // Imprimimos log para depuración si es necesario
+                // System.out.println("[FFmpeg Meta]: " + line); 
+                
                 Matcher mRes = patternRes.matcher(line);
                 if (mRes.find()) {
                     meta.width = Integer.parseInt(mRes.group(1));
@@ -60,7 +87,6 @@ public class FFmpegService {
         return meta;
     }
 
-    // AHORA ACEPTA 'colorHex' (ej: "0xFFFFFF" o null si no se usa)
     public File generarPreview(File videoInput, int fps, int altura, String colorHex, double tolerancia, double startTime) throws Exception {
         File tempOutput = File.createTempFile("preview_", ".png");
         List<String> cmd = new ArrayList<>();
@@ -106,10 +132,8 @@ public class FFmpegService {
         f.add("fps=" + fps);
         f.add("scale=-1:" + altura);
         
-        // Si colorHex no es nulo, aplicamos colorkey
         if (colorHex != null && !colorHex.isEmpty()) {
             String t = String.format("%.2f", tol).replace(",", ".");
-            // colorHex debe venir como "0xFFFFFF" o "white"
             f.add("colorkey=" + colorHex + ":" + t + ":0.2");
         }
         return String.join(",", f);
@@ -126,7 +150,7 @@ public class FFmpegService {
             }
         }
         if (p.waitFor() != 0) {
-            throw new Exception("Error FFmpeg (Exit 1).");
+            throw new Exception("Error FFmpeg (Exit 1). Revisa la consola para más detalles.");
         }
     }
 }
