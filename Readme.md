@@ -1,4 +1,4 @@
-# Sprite Lab 🧪
+# Sprite Lab
 ### Universal 2D Sprite Sheet Generator
 
 **Sprite Lab** es una herramienta de escritorio profesional diseñada para desarrolladores de videojuegos. Su objetivo principal es facilitar el flujo de trabajo al convertir animaciones de video renderizadas (o clips de juegos) en **Sprite Sheets (hojas de sprites)** optimizadas y listas para usar en motores como **Godot Engine, Unity, Unreal, Construct o WebGL**.
@@ -7,7 +7,7 @@ Desarrollado por **FedeiaTech** utilizando **JavaFX 21** con integración nativa
 
 ---
 
-## 📸 Capturas de Pantalla
+## Capturas de Pantalla
 
 ### 1. Interfaz Principal (Estado Inicial)
 ![Interfaz Principal](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/01.png)
@@ -21,25 +21,25 @@ Desarrollado por **FedeiaTech** utilizando **JavaFX 21** con integración nativa
 
 ---
 
-## 🚀 Características (Versión 1.0)
+## Características (Versión 1.0)
 
 Esta herramienta incluye todo lo necesario para transformar un video en un asset de juego utilizable:
 
-* **📺 Soporte Universal de Video:** Acepta formatos estándar como `.MP4`, `.AVI` y `.MOV`.
-* **✂️ Recorte de Tiempo Preciso:** Slider de rango visual (RangeSlider) para seleccionar el inicio y fin exacto de la animación (Loop), con precisión de milisegundos.
-* **🎨 Chroma Key Profesional:**
+* ** Soporte Universal de Video:** Acepta formatos estándar como `.MP4`, `.AVI` y `.MOV`.
+* **✂ Recorte de Tiempo Preciso:** Slider de rango visual (RangeSlider) para seleccionar el inicio y fin exacto de la animación (Loop), con precisión de milisegundos.
+* ** Chroma Key Profesional:**
     * Eliminación de fondos de color sólido (Verde, Azul, Blanco, etc.).
     * **Herramienta de Gotero (Eyedropper):** Selecciona el color a eliminar haciendo clic directamente en la imagen.
     * Slider de tolerancia para bordes suaves.
-* **📐 Cálculo Automático de Grilla:** El software calcula matemáticamente la mejor distribución (Filas x Columnas) y el tamaño de la imagen final basándose en la duración seleccionada y los FPS deseados.
-* **🔍 Visor Avanzado:**
+* ** Cálculo Automático de Grilla:** El software calcula matemáticamente la mejor distribución (Filas x Columnas) y el tamaño de la imagen final basándose en la duración seleccionada y los FPS deseados.
+* ** Visor Avanzado:**
     * **Fondo de Ajedrez (Checkerboard):** Generado por software para visualizar transparencias reales sin errores visuales.
     * **Zoom y Paneo:** Navegación libre con la rueda del mouse y modo "Fit" (ajustar a ventana) automático.
-* **💾 Exportación Inteligente:** Genera archivos PNG transparentes. El nombre del archivo se autogenera incluyendo las dimensiones de cada frame (ej: `ataque_sheet_128x128.png`), facilitando la importación en Godot/Unity.
+* ** Exportación Inteligente:** Genera archivos PNG transparentes. El nombre del archivo se autogenera incluyendo las dimensiones de cada frame (ej: `ataque_sheet_128x128.png`), facilitando la importación en Godot/Unity.
 
 ---
 
-## 🛠️ Requisitos del Sistema
+## Requisitos del Sistema
 
 * **Java Runtime:** JRE/JDK 21 o superior.
 * **Sistema Operativo:** Windows 10/11 (Compatible con Linux/Mac compilando desde el código fuente).
@@ -47,7 +47,7 @@ Esta herramienta incluye todo lo necesario para transformar un video en un asset
 
 ---
 
-## 🔧 Instalación y Desarrollo
+## Instalación y Desarrollo
 
 ### Estructura de Carpetas Requerida
 Para que el programa funcione correctamente, necesitas tener el ejecutable `.jar` junto a una carpeta `bin` que contenga `ffmpeg.exe`.
@@ -71,7 +71,7 @@ Para que el programa funcione correctamente, necesitas tener el ejecutable `.jar
 
 ---
 
-## 🤝 Créditos y Licencias
+## Créditos y Licencias
 
 Este proyecto es de código abierto bajo la **Licencia MIT**.
 
