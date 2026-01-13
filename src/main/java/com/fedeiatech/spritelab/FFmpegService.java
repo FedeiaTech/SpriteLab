@@ -10,147 +10,62 @@ import java.util.regex.Pattern;
 
 public class FFmpegService {
 
-    /**
-     * Método CORREGIDO: Busca el ejecutable de forma absoluta.
-     * Encuentra la carpeta donde está el .jar corriendo y le añade /bin/ffmpeg.exe
-     */
     private File getFFmpegExecutable() {
         try {
-            // 1. Obtenemos la ruta absoluta de donde está el archivo JAR (o la clase compilada)
-            String jarPath = new File(FFmpegService.class.getProtectionDomain()
-                                        .getCodeSource()
-                                        .getLocation()
-                                        .toURI()).getParent();
-            
-            // 2. Construimos la ruta hacia bin/ffmpeg.exe
+            String jarPath = new File(FFmpegService.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
             File executable = new File(jarPath, "bin/ffmpeg.exe");
-
-            // 3. Verificamos si existe en la ruta absoluta (Producción / Instalador)
-            if (executable.exists()) {
-                return executable;
-            } else {
-                // 4. Fallback: Si no existe (ej. probando en NetBeans sin build), probamos ruta relativa
-                File relative = new File("bin/ffmpeg.exe");
-                if (relative.exists()) return relative;
-                
-                // 5. Último intento: quizás está en una carpeta arriba (entorno desarrollo)
-                return new File("../bin/ffmpeg.exe");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Si todo falla, retornamos el default relativo
-            return new File("bin/ffmpeg.exe"); 
-        }
+            if (executable.exists()) return executable;
+            File relative = new File("bin/ffmpeg.exe");
+            return relative.exists() ? relative : new File("../bin/ffmpeg.exe");
+        } catch (Exception e) { return new File("bin/ffmpeg.exe"); }
     }
 
-    public static class VideoMeta {
-        public int width;
-        public int height;
-        public double duration;
-    }
+    public static class VideoMeta { public int width, height; public double duration; }
 
     public VideoMeta obtenerMetadatos(File video) throws Exception {
         List<String> cmd = new ArrayList<>();
-        cmd.add(getFFmpegExecutable().getAbsolutePath());
-        cmd.add("-i");
-        cmd.add(video.getAbsolutePath());
-
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        pb.redirectErrorStream(true);
-        Process p = pb.start();
-
+        cmd.add(getFFmpegExecutable().getAbsolutePath()); cmd.add("-i"); cmd.add(video.getAbsolutePath());
+        ProcessBuilder pb = new ProcessBuilder(cmd); pb.redirectErrorStream(true); Process p = pb.start();
         VideoMeta meta = new VideoMeta();
-        Pattern patternDur = Pattern.compile("Duration: (\\d{2}):(\\d{2}):(\\d{2}\\.\\d+)");
-        Pattern patternRes = Pattern.compile(", (\\d{2,5})x(\\d{2,5})");
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Imprimimos log para depuración si es necesario
-                // System.out.println("[FFmpeg Meta]: " + line); 
-                
-                Matcher mRes = patternRes.matcher(line);
-                if (mRes.find()) {
-                    meta.width = Integer.parseInt(mRes.group(1));
-                    meta.height = Integer.parseInt(mRes.group(2));
-                }
-                Matcher mDur = patternDur.matcher(line);
-                if (mDur.find()) {
-                    double horas = Double.parseDouble(mDur.group(1));
-                    double min = Double.parseDouble(mDur.group(2));
-                    double sec = Double.parseDouble(mDur.group(3));
-                    meta.duration = (horas * 3600) + (min * 60) + sec;
-                }
+        Pattern pDur = Pattern.compile("Duration: (\\d{2}):(\\d{2}):(\\d{2}\\.\\d+)"), pRes = Pattern.compile(", (\\d{2,5})x(\\d{2,5})");
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            String l; while ((l = r.readLine()) != null) {
+                Matcher mRes = pRes.matcher(l); if (mRes.find()) { meta.width = Integer.parseInt(mRes.group(1)); meta.height = Integer.parseInt(mRes.group(2)); }
+                Matcher mDur = pDur.matcher(l); if (mDur.find()) { meta.duration = Double.parseDouble(mDur.group(1))*3600 + Double.parseDouble(mDur.group(2))*60 + Double.parseDouble(mDur.group(3)); }
             }
         }
-        p.waitFor();
-        return meta;
+        p.waitFor(); return meta;
     }
 
-    public File generarPreview(File videoInput, int fps, int altura, String colorHex, double tolerancia, double startTime) throws Exception {
-        File tempOutput = File.createTempFile("preview_", ".png");
+    public File generarPreview(File v, int fps, int h, String c, double t, double s, String cr) throws Exception {
+        File out = File.createTempFile("preview_", ".png");
         List<String> cmd = new ArrayList<>();
-        cmd.add(getFFmpegExecutable().getAbsolutePath());
-        cmd.add("-y");
-        cmd.add("-ss"); cmd.add(String.valueOf(startTime));
-        cmd.add("-i"); cmd.add(videoInput.getAbsolutePath());
-        
-        String filtro = construirFiltros(fps, altura, colorHex, tolerancia);
-        cmd.add("-vf"); cmd.add(filtro);
-        cmd.add("-frames:v"); cmd.add("1");
-        cmd.add(tempOutput.getAbsolutePath());
-
-        ejecutarComando(cmd);
-        return tempOutput;
+        cmd.add(getFFmpegExecutable().getAbsolutePath()); cmd.add("-y"); cmd.add("-ss"); cmd.add(String.valueOf(s)); cmd.add("-i"); cmd.add(v.getAbsolutePath());
+        cmd.add("-vf"); cmd.add(construirFiltros(fps, h, c, t, cr));
+        cmd.add("-frames:v"); cmd.add("1"); cmd.add(out.getAbsolutePath());
+        ejecutarComando(cmd); return out;
     }
 
-    public void exportarSpriteSheet(File videoInput, File output, int fps, int altura, String colorHex, double tolerancia, double startTime, double endTime) throws Exception {
-        double duration = endTime - startTime;
-        if (duration <= 0.1) duration = 1.0;
-
-        int totalFrames = (int) Math.ceil(duration * fps);
-        int lados = (int) Math.ceil(Math.sqrt(totalFrames)); 
-        String tileGrid = lados + "x" + lados;
-
+    public void exportarSpriteSheet(File v, File out, int fps, int h, String c, double t, double s, double e, String cr) throws Exception {
+        double dur = Math.max(0.1, e - s); int total = (int) Math.ceil(dur * fps); int lados = (int) Math.ceil(Math.sqrt(total));
         List<String> cmd = new ArrayList<>();
-        cmd.add(getFFmpegExecutable().getAbsolutePath());
-        cmd.add("-y");
-        cmd.add("-ss"); cmd.add(String.valueOf(startTime));
-        cmd.add("-t"); cmd.add(String.valueOf(duration));
-        cmd.add("-i"); cmd.add(videoInput.getAbsolutePath());
-        
-        String filtroCompleto = construirFiltros(fps, altura, colorHex, tolerancia) + ",tile=" + tileGrid;
-        cmd.add("-vf"); cmd.add(filtroCompleto);
-        cmd.add("-frames:v"); cmd.add("1");
-        cmd.add(output.getAbsolutePath());
-
+        cmd.add(getFFmpegExecutable().getAbsolutePath()); cmd.add("-y"); cmd.add("-ss"); cmd.add(String.valueOf(s)); cmd.add("-t"); cmd.add(String.valueOf(dur)); cmd.add("-i"); cmd.add(v.getAbsolutePath());
+        cmd.add("-vf"); cmd.add(construirFiltros(fps, h, c, t, cr) + ",tile=" + lados + "x" + lados);
+        cmd.add("-frames:v"); cmd.add("1"); cmd.add(out.getAbsolutePath());
         ejecutarComando(cmd);
     }
 
-    private String construirFiltros(int fps, int altura, String colorHex, double tol) {
+    private String construirFiltros(int fps, int h, String c, double t, String cr) {
         List<String> f = new ArrayList<>();
-        f.add("fps=" + fps);
-        f.add("scale=-1:" + altura);
-        
-        if (colorHex != null && !colorHex.isEmpty()) {
-            String t = String.format("%.2f", tol).replace(",", ".");
-            f.add("colorkey=" + colorHex + ":" + t + ":0.2");
-        }
+        if (c != null) f.add("colorkey=" + c + ":" + String.format("%.2f", t).replace(",", ".") + ":0.2");
+        if (cr != null && !cr.isEmpty()) f.add(cr);
+        f.add("fps=" + fps); f.add("scale=-1:" + h);
         return String.join(",", f);
     }
 
     private void ejecutarComando(List<String> command) throws Exception {
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
-        Process p = pb.start();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("[FFmpeg]: " + line);
-            }
-        }
-        if (p.waitFor() != 0) {
-            throw new Exception("Error FFmpeg (Exit 1). Revisa la consola para más detalles.");
-        }
+        ProcessBuilder pb = new ProcessBuilder(command); pb.redirectErrorStream(true); Process p = pb.start();
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) { String l; while ((l = r.readLine()) != null) System.out.println("[FFmpeg]: " + l); }
+        if (p.waitFor() != 0) throw new Exception("Error FFmpeg.");
     }
 }

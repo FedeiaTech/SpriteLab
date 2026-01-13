@@ -1,83 +1,61 @@
-# Sprite Lab
+# Sprite Lab (v0.2)
 ### Universal 2D Sprite Sheet Generator
 
-**Sprite Lab** es una herramienta de escritorio profesional diseñada para desarrolladores de videojuegos. Su objetivo principal es facilitar el flujo de trabajo al convertir animaciones de video renderizadas (o clips de juegos) en **Sprite Sheets (hojas de sprites)** optimizadas y listas para usar en motores como **Godot Engine, Unity, Unreal, Construct o WebGL**.
+**Sprite Lab** is a technical tool designed to optimize the workflow for 3D artists and developers using video generators. It transforms video clips (Blender renders, AI-generated clips, etc.) into **Sprite Sheets** optimized for engines such as **Godot, Unity, or Unreal**.
 
-Desarrollado por **FedeiaTech** utilizando **JavaFX 21** con integración nativa de **FFmpeg**, ofrece una interfaz moderna (Dark Mode) y herramientas precisas de edición.
-
----
-
-## Capturas de Pantalla
-
-### 1. Interfaz Principal (Estado Inicial)
-![Interfaz Principal](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/01.png)
-*Interfaz limpia esperando la carga de archivos mediante Drag & Drop.*
-
-### 2. Editor en Acción (Chroma Key + Recorte)
-![Editando Video](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/02.png)
-*Vista previa en tiempo real con eliminación de fondo, grilla automática y visor con zoom.*
-
-*(Nota: Las imágenes deben estar en la carpeta `assets` del repositorio).*
+This version 0.2 focuses on **surgical precision** for cropping and total code transparency.
 
 ---
 
-## Características (Versión 1.0)
+## Screenshots
 
-Esta herramienta incluye todo lo necesario para transformar un video en un asset de juego utilizable:
+### 1. Main Interface (Initial State)
+![Main Interface](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/01.png)
+*Clean interface waiting for files to be loaded via Drag & Drop.*
 
-* ** Soporte Universal de Video:** Acepta formatos estándar como `.MP4`, `.AVI` y `.MOV`.
-* ** Recorte de Tiempo Preciso:** Slider de rango visual (RangeSlider) para seleccionar el inicio y fin exacto de la animación (Loop), con precisión de milisegundos.
-* ** Chroma Key Profesional:**
-    * Eliminación de fondos de color sólido (Verde, Azul, Blanco, etc.).
-    * **Herramienta de Gotero (Eyedropper):** Selecciona el color a eliminar haciendo clic directamente en la imagen.
-    * Slider de tolerancia para bordes suaves.
-* ** Cálculo Automático de Grilla:** El software calcula matemáticamente la mejor distribución (Filas x Columnas) y el tamaño de la imagen final basándose en la duración seleccionada y los FPS deseados.
-* ** Visor Avanzado:**
-    * **Fondo de Ajedrez (Checkerboard):** Generado por software para visualizar transparencias reales sin errores visuales.
-    * **Zoom y Paneo:** Navegación libre con la rueda del mouse y modo "Fit" (ajustar a ventana) automático.
-* ** Exportación Inteligente:** Genera archivos PNG transparentes. El nombre del archivo se autogenera incluyendo las dimensiones de cada frame (ej: `ataque_sheet_128x128.png`), facilitando la importación en Godot/Unity.
+### 2. Editor in Action (Chroma Key + Cropping)
+![Editing Video](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/02.png)
+*Real-time preview featuring background removal, automatic grid, and zoom viewer.*
 
 ---
 
-## Requisitos del Sistema
+## 🚀 What's New in v0.2
 
-* **Java Runtime:** JRE/JDK 21 o superior.
-* **Sistema Operativo:** Windows 10/11 (Compatible con Linux/Mac compilando desde el código fuente).
-* **Dependencia Externa:** Requiere el binario de `ffmpeg` local.
-
----
-
-## Instalación y Desarrollo
-
-### Estructura de Carpetas Requerida
-Para que el programa funcione correctamente, necesitas tener el ejecutable `.jar` junto a una carpeta `bin` que contenga `ffmpeg.exe`.
-
-### Compilar desde el Código (NetBeans / Maven)
-
-1.  **Clonar este repositorio:**
-    `git clone https://github.com/FedeiaTech/SpriteLab.git`
-
-2.  **Abrir el proyecto:**
-    Usar NetBeans o cualquier IDE compatible con Maven.
-
-3.  **Configurar Dependencias:**
-    Asegurarse de tener el **JDK 21** instalado.
-
-4.  **FFmpeg:**
-    Descargar `ffmpeg.exe` y colocarlo manualmente dentro de una carpeta llamada `bin/` en la raíz del proyecto (al mismo nivel que `src` y `pom.xml`).
-
-5.  **Ejecutar:**
-    Usar el comando `Clean and Build` de Maven.
+* ** Manual Crop (Pixel-Perfect):** Direct selection tool on the viewer. Coordinate mapping has been corrected to eliminate offsets.
+* ** Bilingual System:** Support for dynamic language switching (English/Spanish) across the entire interface.
+* ** Linked Aspect Ratio:** Height and Width fields now visually display their proportional connection.
+* ** Restore Button:** Instantly revert accidental or incorrect crops without reloading the source file.
 
 ---
 
-## Créditos y Licencias
+## Technical Features
 
-Este proyecto es de código abierto bajo la **Licencia MIT**.
-
-* **Desarrollado por:** [FedeiaTech](https://github.com/FedeiaTech)
-* **Librerías GUI:** JavaFX 21 & ControlsFX.
-* **Procesamiento de Video:** Utiliza [FFmpeg](https://ffmpeg.org/) (Bajo licencia LGPL). *Nota: FFmpeg es un binario externo y no se distribuye directamente incrustado en el código fuente de este repositorio.*
+* **Local Processing:** All rendering is performed via **FFmpeg** on your local machine. The application makes no external connections and collects no user data.
+* **Eyedropper Chroma Key:** Direct on-screen color selection with an adjustable tolerance slider for clean transparencies.
+* **Zoom Viewer:** Free navigation (Panning) and automatic "Fit" mode for precise framing before exporting.
+* **Automatic Grid:** Mathematical calculation of rows and columns based on FPS and clip duration.
 
 ---
-*Hecho con ❤️ para la comunidad de desarrollo de videojuegos indie.*
+
+## Ethical Use & Purpose
+This tool is built for **creators**. It serves as the ideal bridge for:
+1. **Blender/Maya Artists** who need to export their 3D animations as 2D sprites.
+2. **Developers** using **generative AI video** (Runway, Sora, Grok) to create base characters and integrate them into a game engine.
+
+---
+
+## Installation (ZIP Release)
+
+1. Download the `.zip` file from [Itch.io](https://fedeiatech.itch.io/spritelab).
+2. Extract the contents (Ensure the `bin` folder containing `ffmpeg.exe` is in the same directory).
+3. Run `SpriteLab.exe`.
+
+---
+
+## Development (Build)
+
+* **Language:** Java 21 (JavaFX).
+* **Dependencies:** FFmpeg (Local binaries required in `/bin`).
+* **License:** MIT.
+
+Developed by **FedeiaTech**.
