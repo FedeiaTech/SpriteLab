@@ -26,7 +26,7 @@ Desarrollado por **FedeiaTech** utilizando **JavaFX 21** con integración nativa
 Esta herramienta incluye todo lo necesario para transformar un video en un asset de juego utilizable:
 
 * ** Soporte Universal de Video:** Acepta formatos estándar como `.MP4`, `.AVI` y `.MOV`.
-* **✂ Recorte de Tiempo Preciso:** Slider de rango visual (RangeSlider) para seleccionar el inicio y fin exacto de la animación (Loop), con precisión de milisegundos.
+* ** Recorte de Tiempo Preciso:** Slider de rango visual (RangeSlider) para seleccionar el inicio y fin exacto de la animación (Loop), con precisión de milisegundos.
 * ** Chroma Key Profesional:**
     * Eliminación de fondos de color sólido (Verde, Azul, Blanco, etc.).
     * **Herramienta de Gotero (Eyedropper):** Selecciona el color a eliminar haciendo clic directamente en la imagen.
