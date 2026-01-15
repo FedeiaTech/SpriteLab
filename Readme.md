@@ -31,7 +31,7 @@ This version 0.3 focuses on **visual feedback**, **high-quality GIF export**, an
 ## What's New in v0.3
 
 * ** High-Quality GIF Export:** Added support for animated GIF export using an internal dual-pass palette generation for professional color accuracy.
-* **👁 Enhanced Preview Windows:** GIF and Sheet previews now feature proportional scaling and auto-centering, fitting any screen size without distortion.
+* ** Enhanced Preview Windows:** GIF and Sheet previews now feature proportional scaling and auto-centering, fitting any screen size without distortion.
 * ** Dynamic Precision Cursors:** The mouse cursor now changes to a crosshair when using the Crop or Eyedropper tools for better visual feedback.
 * ** Visual Aspect Ratio Link:** Replaced the legacy emoji with a custom high-compatibility icon for the resolution link, ensuring consistent UI across all Windows versions.
 
