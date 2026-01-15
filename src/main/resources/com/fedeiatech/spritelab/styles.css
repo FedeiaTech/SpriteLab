@@ -5,9 +5,9 @@
     -fx-font-size: 12px;
 }
 
-/* === BARRA DE ESTADO (NUEVA: Color oscuro integrado) === */
+/* === BARRA DE ESTADO === */
 .status-bar {
-    -fx-background-color: #282c34; /* Gris oscuro que combina con el tema */
+    -fx-background-color: #282c34; /* Gris oscuro */
     -fx-padding: 5 10 5 10;
     -fx-border-color: #1b1f2b;
     -fx-border-width: 1 0 0 0; /* Solo borde superior */
@@ -26,24 +26,24 @@
     -fx-font-weight: bold;
 }
 
-/* === FONDO DE VISOR (GRILLA DE AJEDREZ CSS PURA) === */
+/* === FONDO DE VISOR (GRILLA DE AJEDREZ) === */
 .viewport-bg {
     /* Color base blanco */
     -fx-background-color: white;
     -fx-background-position: 0 0, 10px 10px;
-    -fx-background-size: 20px 20px;
+    -fx-background-size: 10px 10px;
     -fx-background-repeat: repeat;
 }
 
-/* === ETIQUETA DE INSTRUCCIONES (NUEVA) === */
+/* === ETIQUETA DE INSTRUCCIONES === */
 .label-instruction {
     -fx-text-fill: #333333; /* Texto oscuro casi negro */
     -fx-font-weight: bold;
     -fx-font-size: 20px;
-    -fx-effect: null; /* Quitamos la sombra para que sea limpio */
+    -fx-effect: null;
 }
 
-/* === RESTO DE ESTILOS (MANTENER IGUAL) === */
+/* === RESTO DE ESTILOS === */
 .sidebar {
     -fx-background-color: #2d3342;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);

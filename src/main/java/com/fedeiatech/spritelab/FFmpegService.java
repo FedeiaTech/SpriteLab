@@ -55,6 +55,21 @@ public class FFmpegService {
         ejecutarComando(cmd);
     }
 
+    public void exportarGif(File v, File out, int fps, int h, double s, double e, String cr) throws Exception {
+        double dur = Math.max(0.1, e - s);
+        List<String> cmd = new ArrayList<>();
+        cmd.add(getFFmpegExecutable().getAbsolutePath()); 
+        cmd.add("-y"); 
+        cmd.add("-ss"); cmd.add(String.valueOf(s)); 
+        cmd.add("-t"); cmd.add(String.valueOf(dur)); 
+        cmd.add("-i"); cmd.add(v.getAbsolutePath());
+        String base = (cr != null && !cr.isEmpty() ? cr + "," : "") + "fps=" + fps + ",scale=-1:" + h;
+        String gifFilter = base + ",split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse";
+        cmd.add("-vf"); cmd.add(gifFilter);
+        cmd.add(out.getAbsolutePath());
+        ejecutarComando(cmd);
+    }
+
     private String construirFiltros(int fps, int h, String c, double t, String cr) {
         List<String> f = new ArrayList<>();
         if (c != null) f.add("colorkey=" + c + ":" + String.format("%.2f", t).replace(",", ".") + ":0.2");
@@ -65,7 +80,9 @@ public class FFmpegService {
 
     private void ejecutarComando(List<String> command) throws Exception {
         ProcessBuilder pb = new ProcessBuilder(command); pb.redirectErrorStream(true); Process p = pb.start();
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) { String l; while ((l = r.readLine()) != null) System.out.println("[FFmpeg]: " + l); }
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) { 
+            String l; while ((l = r.readLine()) != null) System.out.println("[FFmpeg]: " + l); 
+        }
         if (p.waitFor() != 0) throw new Exception("Error FFmpeg.");
     }
 }

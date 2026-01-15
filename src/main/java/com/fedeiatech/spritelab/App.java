@@ -15,10 +15,9 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("primary"), 1200, 768);
-        
-        // AQUÍ ES DONDE SE CAMBIA EL TÍTULO
-        stage.setTitle("FedeiaTech - Sprite Lab Generator");
-        
+
+        stage.setTitle("FedeiaTech - Sprite Lab Sheet Generator");
+
         stage.setScene(scene);
         stage.show();
     }

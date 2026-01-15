@@ -29,6 +29,7 @@
                    <font> <Font name="System Bold" size="24.0" /> </font>
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnAbout" onAction="#onAbout" prefWidth="30.0" style="-fx-font-size: 10px; -fx-font-weight: bold;" text="?" />
                 <Button fx:id="btnLang" onAction="#cambiarIdioma" prefWidth="45.0" style="-fx-font-size: 10px; -fx-font-weight: bold;" text="EN" />
             </HBox>
             <Label styleClass="label-subtitle" text="Universal 2D Sprite Sheet Generator" />
@@ -65,10 +66,10 @@
                      <Label fx:id="lblAltura" styleClass="label-subtitle" text="Altura (px)" />
                      <TextField fx:id="txtAltura" style="-fx-alignment: CENTER;" />
                   </VBox>
-                  <Label text="🔗" textFill="#98c379">
-                     <font> <Font size="22.0" /> </font>
-                     <padding> <Insets top="15.0" /> </padding>
-                  </Label>
+                  <VBox alignment="CENTER">
+                      <padding> <Insets top="15.0" /> </padding>
+                      <ImageView fx:id="imgLinkIcon" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
+                  </VBox>
                   <VBox HBox.hgrow="ALWAYS">
                      <Label fx:id="lblAncho" styleClass="label-subtitle" text="Ancho (px)" />
                      <TextField fx:id="txtAnchoCalc" editable="false" style="-fx-alignment: CENTER; -fx-opacity: 0.8;" />
@@ -102,6 +103,10 @@
                <HBox spacing="5.0">
                    <Button fx:id="btnPreview" maxWidth="1.7976931348623157E308" onAction="#onRefrescarPreview" prefHeight="35.0" text="🔄 Frame" HBox.hgrow="ALWAYS" />
                    <Button fx:id="btnVerSheet" maxWidth="1.7976931348623157E308" onAction="#onVerMiniatura" prefHeight="35.0" text="👁 Ver Sheet" HBox.hgrow="ALWAYS" />
+               </HBox>
+               <HBox spacing="5.0">
+                   <Button fx:id="btnVerGif" maxWidth="1.7976931348623157E308" onAction="#onVerGif" prefHeight="35.0" text="🎬 Preview GIF" HBox.hgrow="ALWAYS" />
+                   <Button fx:id="btnExportarGif" maxWidth="1.7976931348623157E308" onAction="#onExportarGif" prefHeight="35.0" text="🎁 GIF" HBox.hgrow="ALWAYS" />
                </HBox>
                <Button fx:id="btnExportar" maxWidth="1.7976931348623157E308" onAction="#onExportar" prefHeight="50.0" styleClass="button-action" text="🚀 EXPORTAR PNG" />
             </VBox>
