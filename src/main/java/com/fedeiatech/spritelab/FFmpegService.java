@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class FFmpegService {
 
@@ -38,23 +40,57 @@ public class FFmpegService {
     }
 
     public File generarPreview(File v, int fps, int h, String c, double t, double s, String cr) throws Exception {
-        File out = File.createTempFile("preview_", ".png");
-        List<String> cmd = new ArrayList<>();
-        cmd.add(getFFmpegExecutable().getAbsolutePath()); cmd.add("-y"); cmd.add("-ss"); cmd.add(String.valueOf(s)); cmd.add("-i"); cmd.add(v.getAbsolutePath());
-        cmd.add("-vf"); cmd.add(construirFiltros(fps, h, c, t, cr));
-        cmd.add("-frames:v"); cmd.add("1"); cmd.add(out.getAbsolutePath());
-        ejecutarComando(cmd); return out;
-    }
+    File out = File.createTempFile("preview_", ".png");
+    
+    // Para la previa, creamos un segmento ficticio que solo contenga el punto actual 's'
+    // Esto asegura que se use el mismo motor de construcción de filtros
+    List<double[]> segmentoPrevia = new ArrayList<>();
+    segmentoPrevia.add(new double[]{s, s + 0.1}); 
 
-    public void exportarSpriteSheet(File v, File out, int fps, int h, String c, double t, double s, double e, String cr) throws Exception {
-        double dur = Math.max(0.1, e - s); int total = (int) Math.ceil(dur * fps); int lados = (int) Math.ceil(Math.sqrt(total));
-        List<String> cmd = new ArrayList<>();
-        cmd.add(getFFmpegExecutable().getAbsolutePath()); cmd.add("-y"); cmd.add("-ss"); cmd.add(String.valueOf(s)); cmd.add("-t"); cmd.add(String.valueOf(dur)); cmd.add("-i"); cmd.add(v.getAbsolutePath());
-        cmd.add("-vf"); cmd.add(construirFiltros(fps, h, c, t, cr) + ",tile=" + lados + "x" + lados);
-        cmd.add("-frames:v"); cmd.add("1"); cmd.add(out.getAbsolutePath());
-        ejecutarComando(cmd);
-    }
+    List<String> cmd = new ArrayList<>();
+    cmd.add(getFFmpegExecutable().getAbsolutePath()); 
+    cmd.add("-y"); 
+    cmd.add("-ss"); cmd.add(String.format(Locale.US, "%.3f", s)); 
+    cmd.add("-i"); cmd.add(v.getAbsolutePath());
+    cmd.add("-vf"); 
+    cmd.add(construirFiltros(fps, h, c, t, cr, segmentoPrevia)); // Usar la versión de la lista
+    cmd.add("-frames:v"); cmd.add("1"); 
+    cmd.add(out.getAbsolutePath());
+    
+    ejecutarComando(cmd); 
+    return out;
+}
 
+    public void exportarSpriteSheet(File v, File out, int fps, int h, String c, double t, List<double[]> segmentos, String cr) throws Exception {
+    double duracionTotal = segmentos.stream().mapToDouble(s -> s[1] - s[0]).sum();
+    int totalFrames = (int) Math.max(1, Math.ceil(duracionTotal * fps));
+    int columnas = (int) Math.ceil(Math.sqrt(totalFrames));
+    int filas = (int) Math.ceil((double) totalFrames / columnas);
+    
+    List<String> cmd = new ArrayList<>();
+    cmd.add(getFFmpegExecutable().getAbsolutePath()); cmd.add("-y"); cmd.add("-i"); cmd.add(v.getAbsolutePath());
+    cmd.add("-vf"); 
+    cmd.add(construirFiltros(fps, h, c, t, cr, segmentos) + ",tile=" + columnas + "x" + filas);
+    cmd.add("-frames:v"); cmd.add("1"); cmd.add(out.getAbsolutePath());
+    ejecutarComando(cmd);
+}
+
+    private String construirFiltros(int fps, int h, String c, double t, String cr, List<double[]> segmentos) {
+    List<String> f = new ArrayList<>();
+    if (segmentos != null && !segmentos.isEmpty()) {
+        String selection = segmentos.stream()
+            .map(seg -> String.format(Locale.US, "between(t,%.3f,%.3f)", seg[0], seg[1]))
+            .collect(Collectors.joining("+")); // Ahora el compilador encontrará Collectors
+        f.add("select='" + selection + "'");
+        f.add("setpts=N/FRAME_RATE/TB");
+    }
+    if (cr != null && !cr.isEmpty()) f.add(cr);
+    if (c != null) f.add(String.format(Locale.US, "colorkey=%s:%.2f:0.1", c, t));
+    f.add("fps=" + fps); 
+    f.add("scale=-1:" + h);
+    return String.join(",", f);
+}
+    
     public void exportarGif(File v, File out, int fps, int h, double s, double e, String cr) throws Exception {
         double dur = Math.max(0.1, e - s);
         List<String> cmd = new ArrayList<>();

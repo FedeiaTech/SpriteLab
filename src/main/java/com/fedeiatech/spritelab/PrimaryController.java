@@ -2,6 +2,8 @@ package com.fedeiatech.spritelab;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
@@ -31,20 +33,34 @@ import org.controlsfx.control.RangeSlider;
 
 public class PrimaryController implements Initializable {
 
-    @FXML private BorderPane rootPane;
-    @FXML private Button btnCargar, btnPreview, btnExportar, btnVerSheet, btnReset, btnLang, btnVerGif, btnExportarGif, btnAbout;
-    @FXML private ToggleButton btnGotero, btnZoomLock, btnManualCrop;
-    @FXML private Label lblArchivoNombre, lblInstrucciones, lblZoomFactor, lblInfoGrilla, lblResolucionTotal, lblDuracionRecorte;
-    @FXML private Label section1, section2, section3, section4, lblAltura, lblAncho, lblFps, lblTolerancia, lblEstado;
-    @FXML private Slider sliderFps, sliderTolerancia;
-    @FXML private TextField txtFps, txtAltura, txtAnchoCalc, txtStart, txtEnd;
-    @FXML private CheckBox chkChroma;
-    @FXML private ColorPicker colorPicker;
-    @FXML private ImageView imgPreview, imgLinkIcon;
-    @FXML private StackPane previewContainer;
-    @FXML private Pane selectionPane;
-    @FXML private ScrollPane scrollPreview;
-    @FXML private VBox rangeSliderContainer;
+    @FXML
+    private BorderPane rootPane;
+    @FXML
+    private Button btnCargar, btnPreview, btnExportar, btnVerSheet, btnReset, btnLang, btnVerGif, btnExportarGif, btnAbout;
+    @FXML
+    private ToggleButton btnGotero, btnZoomLock, btnManualCrop;
+    @FXML
+    private Label lblArchivoNombre, lblInstrucciones, lblZoomFactor, lblInfoGrilla, lblResolucionTotal, lblDuracionRecorte;
+    @FXML
+    private Label section1, section2, section3, section4, lblAltura, lblAncho, lblFps, lblTolerancia, lblEstado;
+    @FXML
+    private Slider sliderFps, sliderTolerancia;
+    @FXML
+    private TextField txtFps, txtAltura, txtAnchoCalc, txtStart, txtEnd;
+    @FXML
+    private CheckBox chkChroma;
+    @FXML
+    private ColorPicker colorPicker;
+    @FXML
+    private ImageView imgPreview, imgLinkIcon;
+    @FXML
+    private StackPane previewContainer;
+    @FXML
+    private Pane selectionPane;
+    @FXML
+    private ScrollPane scrollPreview;
+    @FXML
+    private VBox rangeSliderContainer;
 
     private RangeSlider timeRangeSlider;
     private File archivoVideoActual;
@@ -52,6 +68,7 @@ public class PrimaryController implements Initializable {
     private FFmpegService.VideoMeta metaDatosActuales;
     private PauseTransition debounceTimer;
 
+    private final List<double[]> listaSegmentos = new ArrayList<>();
     private double currentZoomScale = 1.0;
     private String cropActual = null;
     private Rectangle selectionRect;
@@ -67,29 +84,36 @@ public class PrimaryController implements Initializable {
         configurarZoom();
         configurarGotero();
         configurarRecorte();
-        
+
         try {
             imgLinkIcon.setImage(new Image(getClass().getResourceAsStream("/com/fedeiatech/spritelab/img/link.png")));
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         debounceTimer = new PauseTransition(Duration.millis(500));
         debounceTimer.setOnFinished(e -> onRefrescarPreview());
 
-        btnPreview.setDisable(true); 
-        btnExportar.setDisable(true); 
+        btnPreview.setDisable(true);
+        btnExportar.setDisable(true);
         btnVerSheet.setDisable(true);
-        btnVerGif.setDisable(true); 
+        btnVerGif.setDisable(true);
         btnExportarGif.setDisable(true);
         colorPicker.setValue(Color.WHITE);
 
         btnManualCrop.disableProperty().bind(btnZoomLock.selectedProperty().not().or(btnReset.disableProperty().not()));
         btnReset.setDisable(true);
 
-        txtAltura.textProperty().addListener((o, old, n) -> { calcularAnchoProporcional(); calcularInfoGrilla(); });
-        sliderFps.valueProperty().addListener(o -> { calcularInfoGrilla(); debounceTimer.playFromStart(); });
+        txtAltura.textProperty().addListener((o, old, n) -> {
+            calcularAnchoProporcional();
+            calcularInfoGrilla();
+        });
+        sliderFps.valueProperty().addListener(o -> {
+            calcularInfoGrilla();
+            debounceTimer.playFromStart();
+        });
         sliderTolerancia.valueProperty().addListener(o -> debounceTimer.playFromStart());
         colorPicker.valueProperty().addListener(o -> debounceTimer.playFromStart());
-        
+
         chkChroma.selectedProperty().addListener(o -> onRefrescarPreview());
         actualizarIdioma();
     }
@@ -159,7 +183,7 @@ public class PrimaryController implements Initializable {
                 scrollPreview.setPannable(false);
             } else {
                 btnZoomLock.setText(esEspanol ? "🔓 Libre" : "🔓 Free");
-                imgPreview.fitWidthProperty().unbind(); 
+                imgPreview.fitWidthProperty().unbind();
                 imgPreview.fitHeightProperty().unbind();
                 lblZoomFactor.setText("100%");
                 scrollPreview.setPannable(true);
@@ -183,21 +207,26 @@ public class PrimaryController implements Initializable {
 
     private void configurarRecorte() {
         selectionRect = new Rectangle(0, 0, 0, 0);
-        selectionRect.setStroke(Color.LIME); 
+        selectionRect.setStroke(Color.LIME);
         selectionRect.setStrokeWidth(2);
         selectionRect.setFill(Color.rgb(0, 255, 0, 0.15));
         selectionRect.setVisible(false);
         selectionPane.getChildren().add(selectionRect);
 
+        // Activa/Desactiva el panel de dibujo según el botón "Recortar"
         btnManualCrop.selectedProperty().addListener((o, old, isSelected) -> {
             selectionPane.setMouseTransparent(!isSelected);
             rootPane.setCursor(isSelected ? Cursor.CROSSHAIR : Cursor.DEFAULT);
-            if (isSelected) btnGotero.setSelected(false);
+            if (isSelected) {
+                btnGotero.setSelected(false);
+            }
         });
 
         selectionPane.setOnMousePressed(e -> {
-            selectionRect.setX(e.getX()); selectionRect.setY(e.getY());
-            selectionRect.setWidth(0); selectionRect.setHeight(0);
+            selectionRect.setX(e.getX());
+            selectionRect.setY(e.getY());
+            selectionRect.setWidth(0);
+            selectionRect.setHeight(0);
             selectionRect.setVisible(true);
         });
 
@@ -205,7 +234,7 @@ public class PrimaryController implements Initializable {
             selectionRect.setWidth(Math.abs(e.getX() - selectionRect.getX()));
             selectionRect.setHeight(Math.abs(e.getY() - selectionRect.getY()));
         });
-        
+
         selectionPane.setOnMouseReleased(e -> {
             if (selectionRect.getWidth() > 10) {
                 cropActual = calcularCropRobusto();
@@ -221,25 +250,49 @@ public class PrimaryController implements Initializable {
 
     private String calcularCropRobusto() {
         Image img = imgPreview.getImage();
-        if (img == null) return null;
+        if (img == null) {
+            return null;
+        }
+
+        // Obtenemos los límites de la imagen dentro del StackPane
         Bounds b = imgPreview.getBoundsInParent();
+
+        // Calculamos la escala (Relación entre píxeles reales y píxeles visuales)
         double sX = img.getWidth() / b.getWidth();
         double sY = img.getHeight() / b.getHeight();
+
+        // Calculamos X e Y restando el margen de centrado (b.getMinX)
         int x = (int) ((selectionRect.getX() - b.getMinX()) * sX);
         int y = (int) ((selectionRect.getY() - b.getMinY()) * sY);
         int w = (int) (selectionRect.getWidth() * sX);
         int h = (int) (selectionRect.getHeight() * sY);
+
+        // Protecciones para no salirse de la imagen
+        x = Math.max(0, x);
+        y = Math.max(0, y);
+
         return String.format("crop=%d:%d:%d:%d", w, h, x, y);
+    }
+
+    private void limpiarCapaRecorte() {
+        if (selectionRect != null) {
+            selectionRect.setVisible(false);
+            selectionRect.setWidth(0);
+        }
     }
 
     private void configurarGotero() {
         btnGotero.selectedProperty().addListener((o, old, isSelected) -> {
-            if (isSelected) btnManualCrop.setSelected(false);
+            if (isSelected) {
+                btnManualCrop.setSelected(false);
+            }
             rootPane.setCursor(isSelected ? Cursor.CROSSHAIR : Cursor.DEFAULT);
         });
 
         previewContainer.setOnMouseClicked(e -> {
-            if (!btnGotero.isSelected() || imgPreview.getImage() == null) return;
+            if (!btnGotero.isSelected() || imgPreview.getImage() == null) {
+                return;
+            }
             try {
                 Bounds b = imgPreview.getBoundsInParent();
                 double sX = imgPreview.getImage().getWidth() / b.getWidth();
@@ -247,83 +300,188 @@ public class PrimaryController implements Initializable {
                 int px = (int) ((e.getX() - b.getMinX()) * sX);
                 int py = (int) ((e.getY() - b.getMinY()) * sY);
                 colorPicker.setValue(imgPreview.getImage().getPixelReader().getColor(px, py));
-            } catch (Exception ex) {}
-            btnGotero.setSelected(false); 
-            rootPane.setCursor(Cursor.DEFAULT); 
+            } catch (Exception ex) {
+            }
+            btnGotero.setSelected(false);
+            rootPane.setCursor(Cursor.DEFAULT);
             onRefrescarPreview();
         });
     }
 
-    @FXML private void onResetCrop() { cropActual = null; btnReset.setDisable(true); onRefrescarPreview(); }
+    @FXML
+    private void onResetCrop() {
+        cropActual = null;
+        btnReset.setDisable(true);
+        onRefrescarPreview();
+    }
 
-    @FXML private void onRefrescarPreview() {
-        if (archivoVideoActual == null) return;
+    @FXML
+    private void onRefrescarPreview() {
+        if (archivoVideoActual == null) {
+            return;
+        }
         Task<File> task = new Task<>() {
-            @Override protected File call() throws Exception {
-                return ffmpegService.generarPreview(archivoVideoActual, (int)sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), (chkChroma.isSelected() ? getColorHex() : null), sliderTolerancia.getValue(), timeRangeSlider.getLowValue(), cropActual);
+            @Override
+            protected File call() throws Exception {
+                return ffmpegService.generarPreview(archivoVideoActual, (int) sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), (chkChroma.isSelected() ? getColorHex() : null), sliderTolerancia.getValue(), timeRangeSlider.getLowValue(), cropActual);
             }
         };
-        task.setOnSucceeded(e -> { 
-            imgPreview.setImage(new Image(task.getValue().toURI().toString())); 
-            limpiarCapaRecorte(); calcularAnchoProporcional(); calcularInfoGrilla();
-            btnPreview.setText(esEspanol ? "🔄 Frame" : "🔄 Refresh"); 
+        task.setOnSucceeded(e -> {
+            imgPreview.setImage(new Image(task.getValue().toURI().toString()));
+            limpiarCapaRecorte();
+            calcularAnchoProporcional();
+            calcularInfoGrilla();
+            btnPreview.setText(esEspanol ? "🔄 Frame" : "🔄 Refresh");
         });
         new Thread(task).start();
     }
 
     private void cargarVideo(File file) {
-        archivoVideoActual = file; lblArchivoNombre.setText(file.getName()); lblInstrucciones.setVisible(false);
-        Task<FFmpegService.VideoMeta> task = new Task<>() { @Override protected FFmpegService.VideoMeta call() throws Exception { return ffmpegService.obtenerMetadatos(file); } };
+        archivoVideoActual = file;
+        lblArchivoNombre.setText(file.getName());
+        lblInstrucciones.setVisible(false);
+        Task<FFmpegService.VideoMeta> task = new Task<>() {
+            @Override
+            protected FFmpegService.VideoMeta call() throws Exception {
+                return ffmpegService.obtenerMetadatos(file);
+            }
+        };
         task.setOnSucceeded(e -> {
-            metaDatosActuales = task.getValue(); txtAltura.setText(String.valueOf(metaDatosActuales.height));
-            timeRangeSlider.setMax(metaDatosActuales.duration); timeRangeSlider.setLowValue(0); timeRangeSlider.setHighValue(metaDatosActuales.duration);
-            btnZoomLock.setSelected(true); 
-            btnPreview.setDisable(false); btnExportar.setDisable(false); btnVerSheet.setDisable(false); 
-            btnVerGif.setDisable(false); btnExportarGif.setDisable(false);
+            metaDatosActuales = task.getValue();
+            txtAltura.setText(String.valueOf(metaDatosActuales.height));
+            timeRangeSlider.setMax(metaDatosActuales.duration);
+            timeRangeSlider.setLowValue(0);
+            timeRangeSlider.setHighValue(metaDatosActuales.duration);
+            btnZoomLock.setSelected(true);
+            btnPreview.setDisable(false);
+            btnExportar.setDisable(false);
+            btnVerSheet.setDisable(false);
+            btnVerGif.setDisable(false);
+            btnExportarGif.setDisable(false);
             onRefrescarPreview();
         });
         new Thread(task).start();
     }
 
     private void calcularAnchoProporcional() {
-        if (metaDatosActuales == null) return;
+        if (metaDatosActuales == null) {
+            return;
+        }
         try {
             int h = Integer.parseInt(txtAltura.getText());
             double wImg = (imgPreview.getImage() != null) ? imgPreview.getImage().getWidth() : metaDatosActuales.width;
             double hImg = (imgPreview.getImage() != null) ? imgPreview.getImage().getHeight() : metaDatosActuales.height;
-            txtAnchoCalc.setText(String.valueOf((int)(h * (wImg / hImg))));
-        } catch (Exception e) {}
+            txtAnchoCalc.setText(String.valueOf((int) (h * (wImg / hImg))));
+        } catch (Exception e) {
+        }
     }
 
     private void calcularInfoGrilla() {
-        if (metaDatosActuales == null) return;
+        if (metaDatosActuales == null) {
+            return;
+        }
         try {
             double dur = timeRangeSlider.getHighValue() - timeRangeSlider.getLowValue();
             int total = (int) Math.ceil(dur * (int) sliderFps.getValue());
             int col = (int) Math.ceil(Math.sqrt(total));
             int h = Integer.parseInt(txtAltura.getText()), w = Integer.parseInt(txtAnchoCalc.getText());
-            lblInfoGrilla.setText(String.format("FRAMES: %d | GRILLA: %dx%d", total, col, (int)Math.ceil((double)total/col)));
-            lblResolucionTotal.setText(String.format("%d x %d px", col * w, (int)Math.ceil((double)total/col) * h));
-        } catch (Exception e) {}
+            lblInfoGrilla.setText(String.format("FRAMES: %d | GRILLA: %dx%d", total, col, (int) Math.ceil((double) total / col)));
+            lblResolucionTotal.setText(String.format("%d x %d px", col * w, (int) Math.ceil((double) total / col) * h));
+        } catch (Exception e) {
+        }
     }
 
-    private void limpiarCapaRecorte() { if (selectionRect != null) { selectionRect.setVisible(false); selectionRect.setWidth(0); } }
-    private void corregirEstilosVisuales() { lblInstrucciones.setStyle("-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 20px;"); }
-    private void crearFondoAjedrez() { int sz = 20; WritableImage p = new WritableImage(sz*2, sz*2); PixelWriter pw = p.getPixelWriter(); for (int x=0; x<sz*2; x++) for (int y=0; y<sz*2; y++) pw.setColor(x,y, ((x<sz&&y<sz)||(x>=sz&&y>=sz)) ? Color.WHITE : Color.web("#cccccc")); previewContainer.setBackground(new Background(new BackgroundFill(new ImagePattern(p,0,0,sz*2,sz*2,false), null, null))); }
-    private void configurarDragAndDrop() { rootPane.setOnDragOver(e -> { if (e.getDragboard().hasFiles()) e.acceptTransferModes(TransferMode.COPY); e.consume(); }); rootPane.setOnDragDropped(e -> { if (e.getDragboard().hasFiles()) { cargarVideo(e.getDragboard().getFiles().get(0)); e.setDropCompleted(true); } e.consume(); }); }
-    private void configurarSincronizacionFPS() { sliderFps.valueProperty().addListener((o, old, n) -> txtFps.setText(String.valueOf(n.intValue()))); }
-    private void inicializarRangeSlider() { timeRangeSlider = new RangeSlider(0, 100, 0, 100); rangeSliderContainer.getChildren().add(timeRangeSlider); timeRangeSlider.lowValueProperty().addListener((o, old, n) -> { txtStart.setText(String.format("%.2f", n.doubleValue()).replace(",", ".")); calcularInfoGrilla(); debounceTimer.playFromStart(); }); timeRangeSlider.highValueProperty().addListener((o, old, n) -> { txtEnd.setText(String.format("%.2f", n.doubleValue()).replace(",", ".")); calcularInfoGrilla(); }); }
-    @FXML private void onCargarVideo() { FileChooser fc = new FileChooser(); File file = fc.showOpenDialog(rootPane.getScene().getWindow()); if (file != null) cargarVideo(file); }
-    private String getColorHex() { Color c = colorPicker.getValue(); return String.format("0x%02X%02X%02X", (int)(c.getRed()*255), (int)(c.getGreen()*255), (int)(c.getBlue()*255)); }
-    
-    @FXML private void onVerMiniatura() { 
-        Task<File> t = new Task<>() { @Override protected File call() throws Exception { 
-            File f = File.createTempFile("sheet", ".png"); 
-            ffmpegService.exportarSpriteSheet(archivoVideoActual, f, (int)sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), (chkChroma.isSelected() ? getColorHex() : null), sliderTolerancia.getValue(), timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue(), cropActual); 
-            return f; 
-        } }; 
-        t.setOnSucceeded(e -> mostrarVentanaSheet(t.getValue())); 
-        new Thread(t).start(); 
+    private void corregirEstilosVisuales() {
+        lblInstrucciones.setStyle("-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 20px;");
+    }
+
+    private void crearFondoAjedrez() {
+        int sz = 20;
+        WritableImage p = new WritableImage(sz * 2, sz * 2);
+        PixelWriter pw = p.getPixelWriter();
+        for (int x = 0; x < sz * 2; x++) {
+            for (int y = 0; y < sz * 2; y++) {
+                pw.setColor(x, y, ((x < sz && y < sz) || (x >= sz && y >= sz)) ? Color.WHITE : Color.web("#cccccc"));
+            }
+        }
+        previewContainer.setBackground(new Background(new BackgroundFill(new ImagePattern(p, 0, 0, sz * 2, sz * 2, false), null, null)));
+    }
+
+    private void configurarDragAndDrop() {
+        rootPane.setOnDragOver(e -> {
+            if (e.getDragboard().hasFiles()) {
+                e.acceptTransferModes(TransferMode.COPY);
+            }
+            e.consume();
+        });
+        rootPane.setOnDragDropped(e -> {
+            if (e.getDragboard().hasFiles()) {
+                cargarVideo(e.getDragboard().getFiles().get(0));
+                e.setDropCompleted(true);
+            }
+            e.consume();
+        });
+    }
+
+    private void configurarSincronizacionFPS() {
+        sliderFps.valueProperty().addListener((o, old, n) -> txtFps.setText(String.valueOf(n.intValue())));
+    }
+
+    private void inicializarRangeSlider() {
+        timeRangeSlider = new RangeSlider(0, 100, 0, 100);
+        rangeSliderContainer.getChildren().add(timeRangeSlider);
+        timeRangeSlider.lowValueProperty().addListener((o, old, n) -> {
+            txtStart.setText(String.format("%.2f", n.doubleValue()).replace(",", "."));
+            calcularInfoGrilla();
+            debounceTimer.playFromStart();
+        });
+        timeRangeSlider.highValueProperty().addListener((o, old, n) -> {
+            txtEnd.setText(String.format("%.2f", n.doubleValue()).replace(",", "."));
+            calcularInfoGrilla();
+        });
+    }
+
+    @FXML
+    private void onCargarVideo() {
+        FileChooser fc = new FileChooser();
+        File file = fc.showOpenDialog(rootPane.getScene().getWindow());
+        if (file != null) {
+            cargarVideo(file);
+        }
+    }
+
+    private String getColorHex() {
+        Color c = colorPicker.getValue();
+        return String.format("0x%02X%02X%02X", (int) (c.getRed() * 255), (int) (c.getGreen() * 255), (int) (c.getBlue() * 255));
+    }
+
+    @FXML
+    private void onVerMiniatura() {
+        if (archivoVideoActual == null) {
+            return;
+        }
+
+        // Creamos un segmento único basado en el RangeSlider para la versión Free
+        List<double[]> segmentoUnico = new ArrayList<>();
+        segmentoUnico.add(new double[]{timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue()});
+
+        Task<File> t = new Task<>() {
+            @Override
+            protected File call() throws Exception {
+                File f = File.createTempFile("sheet", ".png");
+                ffmpegService.exportarSpriteSheet(
+                        archivoVideoActual, f, (int) sliderFps.getValue(),
+                        Integer.parseInt(txtAltura.getText()),
+                        (chkChroma.isSelected() ? getColorHex() : null),
+                        sliderTolerancia.getValue(),
+                        segmentoUnico, // Pasamos el segmento del slider
+                        cropActual
+                );
+                return f;
+            }
+        };
+        t.setOnSucceeded(e -> mostrarVentanaSheet(t.getValue()));
+        new Thread(t).start();
     }
 
     private void mostrarVentanaSheet(File f) {
@@ -343,12 +501,16 @@ public class PrimaryController implements Initializable {
         s.show();
     }
 
-    @FXML private void onVerGif() {
-        Task<File> t = new Task<>() { @Override protected File call() throws Exception {
-            File f = File.createTempFile("preview", ".gif");
-            ffmpegService.exportarGif(archivoVideoActual, f, (int)sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue(), cropActual);
-            return f;
-        } };
+    @FXML
+    private void onVerGif() {
+        Task<File> t = new Task<>() {
+            @Override
+            protected File call() throws Exception {
+                File f = File.createTempFile("preview", ".gif");
+                ffmpegService.exportarGif(archivoVideoActual, f, (int) sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue(), cropActual);
+                return f;
+            }
+        };
         t.setOnSucceeded(e -> {
             mostrarVentanaSheet(t.getValue());
             btnVerGif.setText(esEspanol ? "🎬 Previa GIF" : "🎬 Preview GIF");
@@ -360,18 +522,22 @@ public class PrimaryController implements Initializable {
         new Thread(t).start();
     }
 
-    @FXML private void onExportarGif() {
+    @FXML
+    private void onExportarGif() {
         FileChooser fc = new FileChooser();
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("GIF", "*.gif"));
         File dest = fc.showSaveDialog(rootPane.getScene().getWindow());
         if (dest != null) {
-            Task<Void> t = new Task<>() { @Override protected Void call() throws Exception {
-                ffmpegService.exportarGif(archivoVideoActual, dest, (int)sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue(), cropActual);
-                return null;
-            } };
-            t.setOnSucceeded(e -> { 
-                new Alert(Alert.AlertType.INFORMATION, "GIF OK").show(); 
-                btnExportarGif.setText(esEspanol ? "🎁 GIF" : "🎁 GIF"); 
+            Task<Void> t = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    ffmpegService.exportarGif(archivoVideoActual, dest, (int) sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue(), cropActual);
+                    return null;
+                }
+            };
+            t.setOnSucceeded(e -> {
+                new Alert(Alert.AlertType.INFORMATION, "GIF OK").show();
+                btnExportarGif.setText(esEspanol ? "🎁 GIF" : "🎁 GIF");
             });
             t.setOnFailed(e -> {
                 btnExportarGif.setText(esEspanol ? "🎁 GIF" : "🎁 GIF");
@@ -381,16 +547,41 @@ public class PrimaryController implements Initializable {
         }
     }
 
-    @FXML private void onExportar() { 
-        FileChooser fc = new FileChooser(); File dest = fc.showSaveDialog(rootPane.getScene().getWindow()); 
-        if (dest != null) { 
-            Task<Void> t = new Task<>() { @Override protected Void call() throws Exception { 
-                ffmpegService.exportarSpriteSheet(archivoVideoActual, dest, (int)sliderFps.getValue(), Integer.parseInt(txtAltura.getText()), (chkChroma.isSelected() ? getColorHex() : null), sliderTolerancia.getValue(), timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue(), cropActual); 
-                return null; 
-            } }; 
-            t.setOnSucceeded(e -> { new Alert(Alert.AlertType.INFORMATION, "OK").show(); }); 
-            new Thread(t).start(); 
-        } 
+    @FXML
+    private void onExportar() {
+        if (archivoVideoActual == null) {
+            return;
+        }
+
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Image", "*.png"));
+
+        String nombreVideo = archivoVideoActual.getName().replaceAll("[.][^.]+$", "");
+        fc.setInitialFileName(String.format("%s_sheet_%sx%s.png", nombreVideo, txtAnchoCalc.getText(), txtAltura.getText()));
+
+        File dest = fc.showSaveDialog(rootPane.getScene().getWindow());
+        if (dest != null) {
+            // Lógica para versión Free: Un solo bloque de tiempo
+            List<double[]> segmentoUnico = new ArrayList<>();
+            segmentoUnico.add(new double[]{timeRangeSlider.getLowValue(), timeRangeSlider.getHighValue()});
+
+            Task<Void> t = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    ffmpegService.exportarSpriteSheet(
+                            archivoVideoActual, dest, (int) sliderFps.getValue(),
+                            Integer.parseInt(txtAltura.getText()),
+                            (chkChroma.isSelected() ? getColorHex() : null),
+                            sliderTolerancia.getValue(),
+                            segmentoUnico,
+                            cropActual
+                    );
+                    return null;
+                }
+            };
+            t.setOnSucceeded(e -> new Alert(Alert.AlertType.INFORMATION, "OK").show());
+            new Thread(t).start();
+        }
     }
 
     @FXML
@@ -398,7 +589,7 @@ public class PrimaryController implements Initializable {
         Stage s = new Stage();
         s.initModality(Modality.APPLICATION_MODAL);
         s.setTitle(esEspanol ? "Acerca de Sprite Lab" : "About Sprite Lab");
-        
+
         VBox layout = new VBox(15);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(25));
@@ -415,15 +606,15 @@ public class PrimaryController implements Initializable {
         credits.setWrapText(true);
         credits.setPrefHeight(150);
         credits.setStyle("-fx-control-inner-background: #2a2a2a; -fx-text-fill: #cccccc; -fx-background-color: transparent;");
-        
-        String creditsText = esEspanol ? 
-            "Esta herramienta utiliza FFmpeg para el procesamiento de video y generación de assets.\n\n" +
-            "FFmpeg es una marca registrada de Fabrice Bellard, originador del proyecto FFmpeg.\n\n" +
-            "Sprite Lab es software libre bajo licencia MIT. Hecho para la comunidad de desarrolladores indie." :
-            "This tool uses FFmpeg for video processing and asset generation.\n\n" +
-            "FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project.\n\n" +
-            "Sprite Lab is free software under the MIT license. Made for the indie developer community.";
-            
+
+        String creditsText = esEspanol
+                ? "Esta herramienta utiliza FFmpeg para el procesamiento de video y generación de assets.\n\n"
+                + "FFmpeg es una marca registrada de Fabrice Bellard, originador del proyecto FFmpeg.\n\n"
+                + "Sprite Lab es software libre bajo licencia MIT. Hecho para la comunidad de desarrolladores indie."
+                : "This tool uses FFmpeg for video processing and asset generation.\n\n"
+                + "FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project.\n\n"
+                + "Sprite Lab is free software under the MIT license. Made for the indie developer community.";
+
         credits.setText(creditsText);
 
         Button btnClose = new Button(esEspanol ? "Cerrar" : "Close");
