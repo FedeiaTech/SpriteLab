@@ -1,4 +1,4 @@
-# Sprite Lab (v0.3)
+# Sprite Lab (v0.3.1)
 ### Universal 2D Sprite Sheet & GIF Generator
 
 ![Main Interface](https://github.com/FedeiaTech/SpriteLab/blob/main/_img/cover.jpg)
