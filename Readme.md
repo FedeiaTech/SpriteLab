@@ -37,6 +37,12 @@ This version 0.3 focuses on **visual feedback**, **high-quality GIF export**, an
 
 ---
 
+## Fix 0.3.1 
+
+* ** Repaired sheet exports bugs
+
+---
+
 ## Technical Features
 
 * **Local Processing:** All rendering is performed via **FFmpeg** on your local machine. The application makes no external connections and collects no user data.
