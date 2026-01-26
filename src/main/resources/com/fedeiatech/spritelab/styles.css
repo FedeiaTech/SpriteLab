@@ -86,3 +86,15 @@
 .check-box:selected .mark { -fx-background-color: #478cbf; }
 
 .cursor-crosshair { -fx-cursor: crosshair; }
+
+#btnInterrumpir {
+    -fx-cursor: hand;
+    -fx-min-width: 24px;
+    -fx-min-height: 24px;
+    -fx-max-width: 24px;
+    -fx-max-height: 24px;
+}
+
+#btnInterrumpir:hover {
+    -fx-background-color: #ff6666;
+}
